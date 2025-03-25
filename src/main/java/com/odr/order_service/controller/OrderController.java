@@ -4,6 +4,7 @@ import com.odr.order_service.entity.Order;
 import com.odr.order_service.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +15,9 @@ public class OrderController {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @GetMapping
     public List<Order> getAllOrders() {
@@ -27,15 +31,29 @@ public class OrderController {
 
     @PostMapping
     public Order createOrder(@RequestBody Order order) {
-        return orderRepository.save(order);
+        // Validate user
+    try {
+        restTemplate.getForObject("http://user-service/users/" + order.getUserId(), Object.class);
+    } catch (Exception e) {
+        throw new RuntimeException("User not found");
+    }
+
+    // Validate product
+    try {
+        restTemplate.getForObject("http://product-service/products/" + order.getProductId(), Object.class);
+    } catch (Exception e) {
+        throw new RuntimeException("Product not found");
+    }
+
+    return orderRepository.save(order);
     }
 
     @PutMapping("/{id}")
     public Order updateOrder(@PathVariable Long id, @RequestBody Order orderDetails) {
         Order order = orderRepository.findById(id).orElseThrow();
-        order.setProduct(orderDetails.getProduct());
+        order.setProductId(orderDetails.getProductId());
         order.setQuantity(orderDetails.getQuantity());
-        order.setPrice(orderDetails.getPrice());
+        order.setUserId(orderDetails.getUserId());
         return orderRepository.save(order);
     }
 
