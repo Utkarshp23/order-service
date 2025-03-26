@@ -3,7 +3,9 @@ package com.odr.order_service.controller;
 import com.odr.order_service.entity.Order;
 import com.odr.order_service.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -17,7 +19,7 @@ public class OrderController {
     private OrderRepository orderRepository;
 
     @Autowired
-    private RestTemplate restTemplate;
+    private RestClient restClient;
 
     @GetMapping
     public List<Order> getAllOrders() {
@@ -33,14 +35,17 @@ public class OrderController {
     public Order createOrder(@RequestBody Order order) {
         // Validate user
     try {
-        restTemplate.getForObject("http://user-service/users/" + order.getUserId(), Object.class);
+        //restTemplate.getForObject("http://user-service/users/" + order.getUserId(), Object.class);
+         restClient.get().uri("http://user-service/users/" + order.getUserId()).retrieve().body(Object.class);
     } catch (Exception e) {
+        e.printStackTrace();
         throw new RuntimeException("User not found");
     }
 
     // Validate product
     try {
-        restTemplate.getForObject("http://product-service/products/" + order.getProductId(), Object.class);
+        //restTemplate.getForObject("http://product-service/products/" + order.getProductId(), Object.class);
+        restClient.get().uri("http://product-service/products/" + order.getProductId()).retrieve().body(Object.class);
     } catch (Exception e) {
         throw new RuntimeException("Product not found");
     }

@@ -3,8 +3,9 @@ package com.odr.order_service;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 @SpringBootApplication
 @EnableDiscoveryClient
@@ -15,8 +16,9 @@ public class OrderServiceApplication {
 	}
 
 	@Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
+	@LoadBalanced
+    public RestClient restClient() {
+        return RestClient.builder().build();	
     }
 
 }
