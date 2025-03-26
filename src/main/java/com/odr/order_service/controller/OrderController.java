@@ -18,8 +18,12 @@ public class OrderController {
     @Autowired
     private OrderRepository orderRepository;
 
+    // @Autowired
+    // private RestClient restClient;
+
     @Autowired
-    private RestClient restClient;
+    private RestClient.Builder restClientBuilder;
+
 
     @GetMapping
     public List<Order> getAllOrders() {
@@ -36,7 +40,12 @@ public class OrderController {
         // Validate user
     try {
         //restTemplate.getForObject("http://user-service/users/" + order.getUserId(), Object.class);
-         restClient.get().uri("http://user-service/users/" + order.getUserId()).retrieve().body(Object.class);
+        
+         //restClient.get().uri("http://user-service/users/" + order.getUserId()).retrieve().body(Object.class);
+
+         restClientBuilder.build().get().uri("http://user-service/users/" + order.getUserId())
+                .retrieve().body(Object.class);
+
     } catch (Exception e) {
         e.printStackTrace();
         throw new RuntimeException("User not found");
@@ -45,7 +54,10 @@ public class OrderController {
     // Validate product
     try {
         //restTemplate.getForObject("http://product-service/products/" + order.getProductId(), Object.class);
-        restClient.get().uri("http://product-service/products/" + order.getProductId()).retrieve().body(Object.class);
+        //restClient.get().uri("http://product-service/products/" + order.getProductId()).retrieve().body(Object.class);
+        restClientBuilder.build().get().uri("http://product-service/products/" + order.getUserId())
+                .retrieve().body(Object.class);
+
     } catch (Exception e) {
         throw new RuntimeException("Product not found");
     }
